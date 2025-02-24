@@ -1,10 +1,11 @@
 library(tidyverse)
 library(ggplot2)
 library(ggrepel)
+library(ggthemes)
 
 setwd("C:/Users/u0090833/OneDrive - KU Leuven/Writing/ICJ_idealpoints/R scripts")
 
-data1 <-read.csv("icj_wd1.csv", sep=",", header = T)
+data1 <-read.csv("icj_wd1.csv", sep=";", header = T)
 
 data1<-data1 %>% mutate(appvote=recode(appvote,
                                        "yes"="1",
@@ -146,7 +147,7 @@ print(p+geom_point(data = item, aes(x = ideal, y = appvote)) +
 
 dev.off()
 
-#### Nicaragura v United States
+#### Nicaragua v United States
 
 item2 <- data1 %>% select(judgname, issueID, judgecnt, appvote, opinion) %>% 
   filter(issueID == "70jurisdiction1a")
@@ -185,7 +186,8 @@ print(p+geom_point(data = item2, aes(x = ideal, y = appvote)) +
 dev.off()
 
 
-#### 160
+#### 160 Marshall Islands v. United Kingdom
+
 
 item3 <- data1 %>% select(judgname, issueID, judgecnt, appvote, opinion) %>% 
   filter(issueID == "160preliminary_objections2")
@@ -209,22 +211,28 @@ icc_prob <- calculate_icc(theta_r, a, b)
 icc_data <- data.frame(Theta = theta_r, Probability = icc_prob)
 
 # Create the ICC plot
+
 p<-ggplot(icc_data, aes(x = Theta, y = Probability)) +
   geom_line() +
-  labs(x = "Latent preference for Western world order", 
+  labs(x = "Latent preference for Western-led international order", 
        y = "Probability of voting for applicant") +
-  theme_minimal()
-p+geom_point(data = item3, aes(x = ideal, y = appvote)) + 
+  theme_classic()
+pdf("icc_Marshall_UK.pdf", 
+    width = 6.5, height = 3.5)
+print(p+geom_point(data = item3, aes(x = ideal, y = appvote)) + 
   geom_text_repel(data = item3, aes(label = Name_Judge, x = ideal, y = appvote), 
-                  size = 2, 
+                  size = 1.9,
+                  max.overlaps = 55,
             #check_overlap = T, 
-            position=position_jitter(width=0.03,height=0.04), 
+            #position=position_jitter(width=0.04,height=0.06), 
             colour = "black")
+)
+dev.off()
 
-####
+#### Israel Fence in the Occupied Territories
 
 item4 <- data1 %>% select(judgname, issueID, judgecnt, appvote, opinion) %>% 
-  filter(issueID == "80preliminary_objections1f")
+  filter(issueID == "131request_for_an_advisory_opinion1")
 
 print(item4)
 print(theta)
@@ -232,41 +240,9 @@ print(theta)
 item4 <- inner_join(item4, theta, by = "judgname", keep = F)
 
 # User-supplied parameter values
-b <- -4.8013904  # Discrimination parameter
-a <- -0.006  # Difficulty parameter
+a <- -0.46411980
+b <- -0.46411980
 
-# Create a range of theta values
-theta_r <- seq(-4, 4, by = 0.1)
-
-# Calculate the ICC probabilities
-icc_prob <- calculate_icc(theta_r, b, a)
-
-# Create a data frame for plotting
-icc_data <- data.frame(Theta = theta_r, Probability = icc_prob)
-
-# Create the ICC plot
-p<-ggplot(icc_data, aes(x = Theta, y = Probability)) +
-  geom_line() +
-  labs(x = "Latent preference for Western world order", 
-       y = "Probability of voting for applicant") +
-  theme_minimal()
-p+geom_point(data = item4, aes(x = ideal, y = appvote), colour = "grey") + 
-  geom_text_repel(data = item4, aes(label = Name_Judge, x = ideal, y = appvote), 
-                  size = 2, 
-            max.overlaps = 55, 
-            #position=position_jitter(width=0.03,height=0.04), 
-            colour = "black")
-
-####
-item5 <- data1 %>% select(judgname, issueID, judgecnt, appvote, opinion) %>% 
-  filter(issueID == "118preliminary_objections4")
-print(item5)
-
-item5 <- inner_join(item5, theta, by = "judgname", keep = F)
-
-# User-supplied parameter values
-a <- 4.9712422  # Discrimination parameter
-b <- -2.425584306  # Difficulty parameter
 
 # Create a range of theta values
 theta_r <- seq(-4, 4, by = 0.1)
@@ -280,12 +256,249 @@ icc_data <- data.frame(Theta = theta_r, Probability = icc_prob)
 # Create the ICC plot
 p<-ggplot(icc_data, aes(x = Theta, y = Probability)) +
   geom_line() +
-  labs(x = "Latent preference for Western world order", 
+    theme_fivethirtyeight()
+p+geom_point(data = item4, aes(x = ideal, y = appvote), colour = "red") + 
+  geom_text_repel(data = item4, aes(label = Name_Judge, x = ideal, y = appvote), 
+                  size = 3, 
+            max.overlaps = 55, 
+            #position=position_jitter(width=0.03,height=0.04), 
+            colour = "black")+theme(axis.title = element_text(), title = element_blank())+
+  labs(x = "Latent Preference for Western World Order", 
+       y = "Probability of Voting Against Israel", title ="Predicted vs actual judicial votes in \n Israeli Wall Advisory Opinion")
+
+
+#### Croatia v. Serbia
+item5 <- data1 %>% select(judgname, issueID, judgecnt, appvote, opinion) %>% 
+  filter(issueID == "118preliminary_objections5")
+print(item5)
+
+item5 <- inner_join(item5, theta, by = "judgname", keep = F)
+
+# User-supplied parameter values
+a <- -3.071414834  # Difficulty parameter
+b <-  5.2445205 # Discrimination parameter
+
+# Create a range of theta values
+theta_r <- seq(-4, 4, by = 0.1)
+
+# Calculate the ICC probabilities
+icc_prob <- calculate_icc(theta_r, a, b)
+
+# Create a data frame for plotting
+icc_data <- data.frame(Theta = theta_r, Probability = icc_prob)
+
+# Create the ICC plot
+p<-ggplot(icc_data, aes(x = Theta, y = Probability)) +
+  geom_line() +
+  labs(x = "Latent preference for Western-led international order", 
        y = "Probability of voting for applicant") +
-  theme_minimal()
-p+geom_point(data = item5, aes(x = ideal, y = appvote), colour = "grey") + 
+  theme_classic()
+
+pdf("icc_Croatia_Serbia.pdf", 
+    width = 6.5, height = 3.5)
+print(p+geom_point(data = item5, aes(x = ideal, y = appvote)) + 
   geom_text_repel(data = item5, aes(label = Name_Judge, x = ideal, y = appvote), 
                   size = 2, 
-                  max.overlaps = 55, 
+                  max.overlaps = 55,  colour = "black"
                   #position=position_jitter(width=0.03,height=0.04), 
-                  colour = "black")
+                 )
+)
+dev.off()
+
+
+#### Nauru v. Australia
+
+item6 <- data1 %>% select(judgname, issueID, judgecnt, appvote, opinion) %>% 
+  filter(issueID == "80preliminary_objections1f")
+
+print(item6)
+
+item6 <- inner_join(item6, theta, by = "judgname", keep = F)
+
+# User-supplied parameter values
+a <- -0.06694852
+b <- -4.801390391
+
+# Create a range of theta values
+theta_r <- seq(-4, 4, by = 0.1)
+
+# Calculate the ICC probabilities
+icc_prob <- calculate_icc(theta_r, a, b)
+
+# Create a data frame for plotting
+icc_data <- data.frame(Theta = theta_r, Probability = icc_prob)
+
+# Create the ICC plot
+p<-ggplot(icc_data, aes(x = Theta, y = Probability)) +
+  geom_line() +
+  labs(x = "Latent preference for Western-led international order", 
+       y = "Probability of voting for applicant") +
+  theme_classic()
+
+pdf("icc_Nauru_Australia.pdf", 
+    width = 6.5, height = 3.5)
+print(p+geom_point(data = item6, aes(x = ideal, y = appvote)) + 
+        geom_text_repel(data = item6, aes(label = Name_Judge, x = ideal, y = appvote), size = 1.7, 
+                        max.overlaps = 25, 
+                        #=position_jitter(width=0.03,height=0.04), 
+                        colour = "black"))
+dev.off()
+
+
+#### 
+
+item8 <- data1 %>% select(judgname, issueID, judgecnt, appvote, opinion) %>% 
+  filter(issueID == "103judgment1")
+
+print(item8)
+
+item8 <- inner_join(item8, theta, by = "judgname", keep = F)
+
+# User-supplied parameter values
+a <- -0.177726713
+b <- 5.4083510
+
+# Create a range of theta values
+theta_r <- seq(-4, 4, by = 0.1)
+
+# Calculate the ICC probabilities
+icc_prob <- calculate_icc(theta_r, a, b)
+
+# Create a data frame for plotting
+icc_data <- data.frame(Theta = theta_r, Probability = icc_prob)
+
+# Create the ICC plot
+p<-ggplot(icc_data, aes(x = Theta, y = Probability)) +
+  geom_line() +
+  labs(x = "Latent preference for Western-led international order", 
+       y = "Probability of voting for applicant") +
+  theme_classic()
+
+pdf("icc_Guinea_Congo.pdf", 
+    width = 6.5, height = 3.5)
+print(p+geom_point(data = item8, aes(x = ideal, y = appvote)) + 
+        geom_text_repel(data = item8, aes(label = Name_Judge, x = ideal, y = appvote), size = 1.7, 
+                        max.overlaps = 25, 
+                        #=position_jitter(width=0.03,height=0.04), 
+                        colour = "black"))
+dev.off()
+
+
+
+#### Germany v. Italy
+
+item7 <- data1 %>% select(judgname, issueID, judgecnt, appvote, opinion) %>% 
+  filter(issueID == "143judgment1")
+
+print(item7)
+
+item7 <- inner_join(item7, theta, by = "judgname", keep = F)
+
+# User-supplied parameter values
+a <- -1.09569654
+b <- -4.562409286
+
+# Create a range of theta values
+theta_r <- seq(-4, 4, by = 0.1)
+
+# Calculate the ICC probabilities
+icc_prob <- calculate_icc(theta_r, a, b)
+
+# Create a data frame for plotting
+icc_data <- data.frame(Theta = theta_r, Probability = icc_prob)
+
+# Create the ICC plot
+p<-ggplot(icc_data, aes(x = Theta, y = Probability)) +
+  geom_line() +
+  labs(x = "Latent preference for Western-led international order", 
+       y = "Probability of voting for applicant") +
+  theme_classic()
+
+pdf("icc_Germany_Italy.pdf", 
+    width = 6.5, height = 3.5)
+print(p+geom_point(data = item7, aes(x = ideal, y = appvote)) + 
+        geom_text_repel(data = item7, aes(label = Name_Judge, x = ideal, y = appvote), size = 1.7, 
+                        max.overlaps = 25, 
+                        #=position_jitter(width=0.03,height=0.04), 
+                        colour = "black"))
+dev.off()
+
+#### Bosnia and Herzegovina v. Serbia and Montenegro
+
+item9 <- data1 %>% select(judgname, issueID, judgecnt, appvote, opinion) %>% 
+  filter(issueID == "91judgment1")
+
+print(item9)
+
+item9 <- inner_join(item9, theta, by = "judgname", keep = F)
+
+# User-supplied parameter values
+a <- -2.646228773
+b <- 5.2356535
+
+# Create a range of theta values
+theta_r <- seq(-4, 4, by = 0.1)
+
+# Calculate the ICC probabilities
+icc_prob <- calculate_icc(theta_r, a, b)
+
+# Create a data frame for plotting
+icc_data <- data.frame(Theta = theta_r, Probability = icc_prob)
+
+# Create the ICC plot
+p<-ggplot(icc_data, aes(x = Theta, y = Probability)) +
+  geom_line() +
+  labs(x = "Latent preference for Western-led international order", 
+       y = "Probability of voting for applicant") +
+  theme_classic()
+
+pdf("icc_Bosnia_Serbia.pdf", 
+    width = 6.5, height = 3.5)
+print(p+geom_point(data = item9, aes(x = ideal, y = appvote)) + 
+        geom_text_repel(data = item9, aes(label = Name_Judge, x = ideal, y = appvote), size = 1.7, 
+                        max.overlaps = 25, 
+                        #=position_jitter(width=0.03,height=0.04), 
+                        colour = "black"))
+dev.off()
+
+
+#### New Zealand v. France
+
+item10 <- data1 %>% select(judgname, issueID, judgecnt, appvote, opinion) %>% 
+  filter(issueID == "59judgment1")
+
+print(item10)
+
+item10 <- inner_join(item10, theta, by = "judgname", keep = F)
+
+# User-supplied parameter values
+a <- 1.894791211
+b <- 4.5615817
+
+
+# Create a range of theta values
+theta_r <- seq(-4, 4, by = 0.1)
+
+# Calculate the ICC probabilities
+icc_prob <- calculate_icc(theta_r, a, b)
+
+# Create a data frame for plotting
+icc_data <- data.frame(Theta = theta_r, Probability = icc_prob)
+
+# Create the ICC plot
+p<-ggplot(icc_data, aes(x = Theta, y = Probability)) +
+  geom_line() +
+  labs(x = "Latent preference for Western-led international order", 
+       y = "Probability of voting for applicant") +
+  theme_classic()
+
+pdf("icc_New_Zeland_France.pdf", 
+    width = 6.5, height = 3.5)
+print(p+geom_point(data = item10, aes(x = ideal, y = appvote)) + 
+        geom_text_repel(data = item10, aes(label = Name_Judge, x = ideal, y = appvote), size = 1.7, 
+                        max.overlaps = 25, 
+                        #=position_jitter(width=0.03,height=0.04), 
+                        colour = "black"))
+dev.off()
+
+

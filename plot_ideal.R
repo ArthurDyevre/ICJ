@@ -1,5 +1,6 @@
 library(tidyverse)
 library(ggplot2)
+library(ggthemes)
 
 
 setwd("C:/Users/u0090833/OneDrive - KU Leuven/Writing/ICJ_idealpoints/R scripts")
@@ -107,6 +108,19 @@ print(ggplot(idealpoints, aes(x=ideal, y= reorder(Name_Judge,ideal),xmin=lower, 
         geom_vline(xintercept = -1:1,linetype=3)+
         theme(axis.text=element_text(size=7))+
         xlab("Latent dimension of disagreement"))
+dev.off()
+
+jpeg("Judge_ideal_points.jpeg", 
+    width = 480, height = 480, quality = 330)
+print(ggplot(idealpoints, aes(x=ideal, y= reorder(Name_Judge,ideal),xmin=lower, xmax=upper)) +  
+        geom_point(colour = "red")+
+        geom_linerange(colour = "red") + 
+        theme_fivethirtyeight()+
+        ylab("") + 
+        geom_vline(xintercept = -1:1,linetype=3)+
+        ggtitle("Geopolitical Ideal Points of ICJ Judges")+
+        theme(axis.text=element_text(size=7))+
+        xlab("Support for Western-led International Order"))
 dev.off()
 
 
